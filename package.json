@@ -1,0 +1,26 @@
+{
+  "name": "w11k-select-bower",
+  "version": "0.1.0",
+
+  "description": "Distribution Repository of w11k-select",
+  "keywords": [ "angular", "angularjs", "directive", "select", "multi-select", "bootstrap", "bower" ],
+  "homepage": "https://github.com/w11k/w11k-select",
+  "bugs": "https://github.com/w11k/w11k-select/issues",
+
+  "author": {
+    "name": "WeigleWilczek GmbH",
+    "url": "http://www.w11k.com"
+  },
+  "contributors": [
+    "Philipp Burgmer"
+  ],
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pburgmer/w11k-select-bower.git"
+  },
+
+  "licenses": [{
+      "type": "MIT"
+  }]
+}
