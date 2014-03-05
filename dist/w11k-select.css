@@ -1,0 +1,75 @@
+.ww-select a:hover {
+  text-decoration: none;
+}
+.ww-select .select-toggle .form-control {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 0;
+  min-width: 100%;
+  cursor: pointer;
+}
+.ww-select .select-toggle.disabled {
+  cursor: not-allowed;
+}
+.ww-select .select-toggle.disabled .form-control {
+  cursor: not-allowed;
+}
+.ww-select .select-toggle .input-group-addon {
+  font-size: 0.9em;
+}
+.ww-select .dropdown-menu {
+  min-width: 100%;
+  padding: 0;
+}
+.ww-select .dropdown-menu .header {
+  padding: 6px;
+  border-bottom: 1px solid gray;
+}
+.ww-select .dropdown-menu .header .filter {
+  padding-bottom: 8px;
+}
+.ww-select .dropdown-menu .header .filter .clear {
+  font-size: 0.9em;
+}
+.ww-select .dropdown-menu .header .controls button {
+  width: 100%;
+}
+.ww-select .dropdown-menu .content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 500px;
+}
+.ww-select .dropdown-menu .content ul.items {
+  padding: 6px 0;
+  margin: 0;
+  display: table;
+  width: 100%;
+}
+.ww-select .dropdown-menu .content ul.items > li {
+  margin: 0;
+  padding: 0;
+  display: table-row;
+}
+.ww-select .dropdown-menu .content ul.items > li > div {
+  display: table-cell;
+  padding: 4px;
+}
+.ww-select .dropdown-menu .content ul.items > li > div.state {
+  padding-left: 12px;
+}
+.ww-select .dropdown-menu .content ul.items > li > div.state input {
+  position: relative;
+  top: -1px;
+}
+.ww-select .dropdown-menu .content ul.items > li > div.name {
+  padding-right: 24px;
+  width: 100%;
+}
+.ww-select .dropdown-menu .content ul.items > li.selected {
+  background-color: gray;
+}
+.ww-select .dropdown-menu .content ul.items > li:hover {
+  background-color: gray;
+  cursor: pointer;
+}
