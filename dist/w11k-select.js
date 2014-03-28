@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.1.1 - 2014-03-05
+ * w11k-select - v0.2.0 - 2014-03-28
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -33,6 +33,7 @@ angular.module("w11k.select").factory("optionParser", [ "$parse", function($pars
 } ]);
 
 angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$parse", "$document", "optionParser", "$filter", "$timeout", "$window", function(w11kSelectConfig, $parse, $document, optionParser, $filter, $timeout, $window) {
+    var $ = angular.element;
     return {
         restrict: "A",
         replace: false,
@@ -44,6 +45,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
         },
         require: "ngModel",
         link: function(scope, element, attrs, controller) {
+            var hasBeenOpened = false;
             var options = [];
             scope.optionsFiltered = [];
             var header = {
@@ -64,13 +66,19 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                         $event.prevent();
                         return;
                     }
+                    if (hasBeenOpened === false) {
+                        hasBeenOpened = true;
+                        filterOptions();
+                    }
                     if (scope.filter.active) {
                         $timeout(function() {
-                            element.find(".dropdown-menu input").first().focus();
-                            adjustHeight();
-                            $($window).on("resize", adjustHeight);
+                            element[0].querySelector(".dropdown-menu input").focus();
                         });
                     }
+                    $timeout(function() {
+                        adjustHeight();
+                    });
+                    $($window).on("resize", adjustHeight);
                 },
                 onClose: function() {
                     scope.filter.values.label = "";
@@ -81,20 +89,19 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 }
             };
             function adjustHeight() {
-                var content = element.find(".dropdown-menu .content");
-                var offset = content.offset();
-                var scrollTop = $($window).scrollTop();
+                var content = element[0].querySelector(".dropdown-menu .content");
+                var offset = content.getBoundingClientRect();
                 var windowHeight = $window.innerHeight;
-                var maxHeight = windowHeight - (offset.top - scrollTop) - 60;
+                var maxHeight = windowHeight - offset.top - 60;
                 var minHeightFor3Elements = 93;
                 if (maxHeight < minHeightFor3Elements) {
                     maxHeight = minHeightFor3Elements;
                 }
-                content.css("max-height", maxHeight);
+                content.style.maxHeight = maxHeight + "px";
             }
             function resetHeight() {
-                var content = element.find(".dropdown-menu .content");
-                content.css("max-height", "");
+                var content = element[0].querySelector(".dropdown-menu .content");
+                content.style.maxHeight = "";
             }
             var placeholderAttrObserver = attrs.$observe("placeholder", function(placeholder) {
                 if (angular.isDefined(placeholder)) {
@@ -142,7 +149,9 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
             }
             var filter = $filter("filter");
             function filterOptions() {
-                scope.optionsFiltered = filter(options, scope.filter.values, false);
+                if (hasBeenOpened) {
+                    scope.optionsFiltered = filter(options, scope.filter.values, false);
+                }
             }
             var filterPlaceholderAttrObserver = attrs.$observe("filterPlaceholder", function(filterPlaceholder) {
                 if (angular.isDefined(filterPlaceholder)) {
@@ -164,16 +173,27 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                     scope.selectAll();
                 }
             };
-            scope.selectAll = function($event) {
+            scope.selectFiltered = function($event) {
                 if (angular.isDefined($event)) {
                     $event.preventDefault();
                     $event.stopPropagation();
                 }
-                if (scope.isMultiple === false) {
-                    return;
+                if (scope.isMultiple) {
+                    angular.forEach(scope.optionsFiltered, function(option) {
+                        option.selected = true;
+                    });
+                } else if (scope.optionsFiltered.length === 1) {
+                    scope.optionsFiltered[0].selected = true;
+                }
+                updateNgModel();
+            };
+            scope.deselectFiltered = function($event) {
+                if (angular.isDefined($event)) {
+                    $event.preventDefault();
+                    $event.stopPropagation();
                 }
                 angular.forEach(scope.optionsFiltered, function(option) {
-                    option.selected = true;
+                    option.selected = false;
                 });
                 updateNgModel();
             };
@@ -182,7 +202,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                     $event.preventDefault();
                     $event.stopPropagation();
                 }
-                angular.forEach(scope.optionsFiltered, function(option) {
+                angular.forEach(options, function(option) {
                     option.selected = false;
                 });
                 updateNgModel();
@@ -287,12 +307,8 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 }
             }
             function isEmpty() {
-                var value = controller.$modelValue;
-                if (scope.isMultiple) {
-                    return !(angular.isArray(value) && value.length > 0);
-                } else {
-                    return angular.isUndefined(value);
-                }
+                var value = controller.$viewValue;
+                return !(angular.isArray(value) && value.length > 0);
             }
             scope.isEmpty = function() {
                 return isEmpty();
