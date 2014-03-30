@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.3.1 - 2014-03-30
+ * w11k-select - v0.3.2 - 2014-03-30
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -187,14 +187,16 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
             }
             var filter = $filter("filter");
             var limitTo = $filter("limitTo");
+            var initialLimitTo = 80;
+            var increaseLimitTo = initialLimitTo * .5;
             function filterOptions() {
                 if (hasBeenOpened) {
                     optionsFiltered = filter(options, scope.filter.values, false);
-                    scope.optionsToShow = limitTo(optionsFiltered, 100);
+                    scope.optionsToShow = limitTo(optionsFiltered, initialLimitTo);
                 }
             }
             scope.showMoreOptions = function() {
-                scope.optionsToShow = optionsFiltered.slice(0, scope.optionsToShow.length + 100);
+                scope.optionsToShow = optionsFiltered.slice(0, scope.optionsToShow.length + increaseLimitTo);
             };
             var filterPlaceholderAttrObserver = attrs.$observe("filterPlaceholder", function(filterPlaceholder) {
                 if (angular.isDefined(filterPlaceholder)) {
