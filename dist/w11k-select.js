@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.3.0 - 2014-03-30
+ * w11k-select - v0.3.1 - 2014-03-30
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -215,7 +215,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 if ($event.keyCode === 13) {
                     $event.preventDefault();
                     $event.stopPropagation();
-                    scope.selectAll();
+                    scope.selectFiltered();
                 }
             };
             scope.selectFiltered = function($event) {
