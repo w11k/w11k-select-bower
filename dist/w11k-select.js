@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.3.2 - 2014-03-30
+ * w11k-select - v0.3.3 - 2014-04-08
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -103,7 +103,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
             function adjustHeight() {
                 var content = element[0].querySelector(".dropdown-menu .content");
                 var offset = content.getBoundingClientRect();
-                var windowHeight = $window.innerHeight;
+                var windowHeight = $window.innerHeight || $window.document.documentElement.clientHeight;
                 var maxHeight = windowHeight - offset.top - 60;
                 var minHeightFor3Elements = 93;
                 if (maxHeight < minHeightFor3Elements) {
@@ -232,7 +232,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 } else if (optionsFiltered.length === 1) {
                     optionsFiltered[0].selected = true;
                 }
-                updateNgModel();
+                setViewValue();
             };
             scope.deselectFiltered = function($event) {
                 if (angular.isDefined($event)) {
@@ -242,7 +242,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 angular.forEach(optionsFiltered, function(option) {
                     option.selected = false;
                 });
-                updateNgModel();
+                setViewValue();
             };
             scope.deselectAll = function($event) {
                 if (angular.isDefined($event)) {
@@ -252,7 +252,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 angular.forEach(options, function(option) {
                     option.selected = false;
                 });
-                updateNgModel();
+                setViewValue();
             };
             var optionsExp = attrs.options;
             var optionsExpParsed = optionParser.parse(optionsExp);
@@ -289,7 +289,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                     option.selected = true;
                     scope.dropdown.close();
                 }
-                updateNgModel();
+                setViewValue();
             };
             scope.$watch(function() {
                 return optionsExpParsed.collection(scope.$parent);
@@ -302,12 +302,19 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 $event.stopPropagation();
             };
             scope.onOptionStateChange = function() {
-                updateNgModel();
+                setViewValue();
             };
-            function updateNgModel() {
+            function setViewValue() {
                 var selectedValues = options2model(options);
                 controller.$setViewValue(selectedValues);
                 updateHeader();
+            }
+            function updateNgModel() {
+                var value = options2model(options);
+                angular.forEach(controller.$parsers, function(fn) {
+                    value = fn(value);
+                });
+                $parse(attrs.ngModel).assign(scope.$parent, value);
             }
             function readNgModel() {
                 var modelValue = controller.$viewValue;
