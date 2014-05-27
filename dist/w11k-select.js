@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.3.4 - 2014-04-09
+ * w11k-select - v0.3.5 - 2014-05-27
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -39,9 +39,9 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
         replace: false,
         templateUrl: w11kSelectConfig.templateUrl,
         scope: {
-            isMultiple: "=?multiple",
-            isRequired: "=?required",
-            isDisabled: "=?disabled"
+            isMultiple: "=?w11kSelectMultiple",
+            isRequired: "=?w11kSelectRequired",
+            isDisabled: "=?w11kSelectDisabled"
         },
         require: "ngModel",
         link: function(scope, element, attrs, controller) {
@@ -115,7 +115,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 var content = element[0].querySelector(".dropdown-menu .content");
                 content.style.maxHeight = "";
             }
-            var placeholderAttrObserver = attrs.$observe("placeholder", function(placeholder) {
+            var placeholderAttrObserver = attrs.$observe("w11kSelectPlaceholder", function(placeholder) {
                 if (angular.isDefined(placeholder)) {
                     header.placeholder = scope.$eval(placeholder);
                     updateHeader();
@@ -125,7 +125,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                     }
                 }
             });
-            var selectedMessageAttrObserver = attrs.$observe("selectedMessage", function(selectedMessage) {
+            var selectedMessageAttrObserver = attrs.$observe("w11kSelectSelectedMessage", function(selectedMessage) {
                 if (angular.isDefined(selectedMessage)) {
                     header.selectedMessage = scope.$eval(selectedMessage);
                     updateHeader();
@@ -135,7 +135,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                     }
                 }
             });
-            var selectFilteredTextAttrObserver = attrs.$observe("selectFilteredText", function(selectFilteredText) {
+            var selectFilteredTextAttrObserver = attrs.$observe("w11kSelectSelectFilteredText", function(selectFilteredText) {
                 if (angular.isDefined(selectFilteredText)) {
                     var text = scope.$eval(selectFilteredText);
                     var span = angular.element(element[0].querySelector(".select-filtered-text"));
@@ -146,7 +146,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                     }
                 }
             });
-            var deselectFilteredTextAttrObserver = attrs.$observe("deselectFilteredText", function(deselectFilteredText) {
+            var deselectFilteredTextAttrObserver = attrs.$observe("w11kSelectDeselectFilteredText", function(deselectFilteredText) {
                 if (angular.isDefined(deselectFilteredText)) {
                     var text = scope.$eval(deselectFilteredText);
                     var span = angular.element(element[0].querySelector(".deselect-filtered-text"));
@@ -198,7 +198,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
             scope.showMoreOptions = function() {
                 scope.optionsToShow = optionsFiltered.slice(0, scope.optionsToShow.length + increaseLimitTo);
             };
-            var filterPlaceholderAttrObserver = attrs.$observe("filterPlaceholder", function(filterPlaceholder) {
+            var filterPlaceholderAttrObserver = attrs.$observe("w11kSelectFilterPlaceholder", function(filterPlaceholder) {
                 if (angular.isDefined(filterPlaceholder)) {
                     scope.filter.placeholder = scope.$eval(filterPlaceholder);
                     if (angular.isFunction(filterPlaceholderAttrObserver)) {
@@ -254,7 +254,7 @@ angular.module("w11k.select").directive("w11kSelect", [ "w11kSelectConfig", "$pa
                 });
                 setViewValue();
             };
-            var optionsExp = attrs.options;
+            var optionsExp = attrs.w11kSelectOptions;
             var optionsExpParsed = optionParser.parse(optionsExp);
             function collection2options(collection, viewValue) {
                 return collection.map(function(option) {
