@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.4.1 - 2014-06-02
+ * w11k-select - v0.4.2 - 2014-06-02
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -354,7 +354,7 @@ angular.module('w11k.select').directive('w11kSelect', [
 
         function updateHeader() {
           if (angular.isDefined(scope.config.header.text)) {
-            scope.header.text = scope.$parent.$eval(scope.config.header.text);
+            jqHeaderText.text(scope.$parent.$eval(scope.config.header.text));
           }
           else {
             var optionsSelected = options.filter(function (option) {
