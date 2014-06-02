@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.4.0 - 2014-06-02
+ * w11k-select - v0.4.1 - 2014-06-02
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -211,14 +211,14 @@ angular.module('w11k.select').directive('w11kSelect', [
             'moz' + matchesSelector,
             'webkit' + matchesSelector,
             'ms' + matchesSelector,
-            'o + matchesSelector'
+            'o' + matchesSelector
           ];
 
           for (var index in matchFunctions) {
             var matchFunction = matchFunctions[index];
             if (angular.isFunction(element[0][matchFunction])) {
               var parent1 = element[0].parentNode;
-              while (parent1 !== $document) {
+              while (parent1 !== $document[0]) {
                 if (parent1[matchFunction](selector)) {
                   return parent1;
                 }
