@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.4.2 - 2014-06-02
+ * w11k-select - v0.4.3 - 2014-06-04
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -8,7 +8,8 @@
 
 angular.module('w11k.select', [
   'pasvaz.bindonce',
-  'w11k.dropdownToggle'
+  'w11k.dropdownToggle',
+  'w11k.select.template'
 ]);
 
 angular.module('w11k.select').constant('w11kSelectConfig', {

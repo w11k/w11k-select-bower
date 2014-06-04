@@ -32,6 +32,14 @@
 .w11k-select .dropdown-menu .header .filter .clear {
   font-size: 0.9em;
 }
+.w11k-select .dropdown-menu .header .controls .row {
+  margin-left: -3px;
+  margin-right: -3px;
+}
+.w11k-select .dropdown-menu .header .controls .col-xs-6 {
+  padding-left: 3px;
+  padding-right: 3px;
+}
 .w11k-select .dropdown-menu .header .controls button {
   width: 100%;
 }
