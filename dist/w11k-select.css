@@ -69,6 +69,7 @@
 .w11k-select .dropdown-menu .content ul.items > li > div.state input {
   position: relative;
   top: -1px;
+  cursor: pointer;
 }
 .w11k-select .dropdown-menu .content ul.items > li > div.name {
   padding-right: 24px;

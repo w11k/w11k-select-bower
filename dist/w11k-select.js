@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.4.4 - 2014-06-10
+ * w11k-select - v0.4.5 - 2014-07-07
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -501,16 +501,21 @@ angular.module('w11k.select').directive('w11kSelect', [
         }
 
         scope.select = function (option) {
-          if (scope.config.multiple) {
-            option.selected = !option.selected;
-          }
-          else {
+          if (option.selected === false && scope.config.multiple === false) {
             scope.deselectAll();
             option.selected = true;
             scope.dropdown.close();
+            setViewValue();
           }
-
-          setViewValue();
+          else if (option.selected && scope.config.required === false && scope.config.multiple === false) {
+            option.selected = false;
+            scope.dropdown.close();
+            setViewValue();
+          }
+          else if (scope.config.multiple) {
+            option.selected = !option.selected;
+            setViewValue();
+          }
         };
 
         // watch for changes of options collection made outside
@@ -526,15 +531,16 @@ angular.module('w11k.select').directive('w11kSelect', [
         );
 
         // called on click to a checkbox of an option
-        scope.onOptionStateClick = function ($event) {
+        scope.onOptionStateClick = function ($event, option) {
           // we have to stop propagation, otherwise selected state will be toggled twice
           // because of click handler of list element
           $event.stopPropagation();
-        };
 
-        // called on click to a checkbox of an option
-        scope.onOptionStateChange = function () {
-          setViewValue();
+          if (option.selected && scope.config.required && scope.config.multiple === false) {
+            $event.preventDefault();
+          }
+
+          scope.select(option);
         };
 
         /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
