@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.4.7 - 2014-09-29
+ * w11k-select - v0.5.0 - 2014-09-29
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
