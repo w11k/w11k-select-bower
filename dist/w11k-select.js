@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.5.0 - 2014-09-29
+ * w11k-select - v0.6.0 - 2014-11-11
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -428,7 +428,7 @@ angular.module('w11k.select').directive('w11kSelect', [
             setSelected(optionsFiltered, true);
           }
           else if (optionsFiltered.length === 1) {
-            optionsFiltered[0].selected = true;
+            scope.select(optionsFiltered[0]); //behaves like if the option was clicked using the mouse
           }
 
           setViewValue();
