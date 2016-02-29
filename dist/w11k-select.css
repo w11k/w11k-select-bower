@@ -47,6 +47,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 500px;
+  width: 100%;
 }
 .w11k-select .dropdown-menu .content ul.items {
   padding: 6px 0;

@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.7.0 - 2016-02-03
+ * w11k-select - v0.7.1 - 2016-02-29
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2016 w11k GmbH
@@ -486,6 +486,7 @@ angular.module('w11k.select').directive('w11kSelect', [
 
           scope.clearFilter = function () {
             scope.filter.values = {};
+            filterOptions();
           };
 
           scope.onKeyPressedInFilter = function ($event) {
