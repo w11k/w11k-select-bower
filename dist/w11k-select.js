@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.7.2 - 2016-08-09
+ * w11k-select - v0.7.3 - 2016-09-21
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2016 w11k GmbH
@@ -778,7 +778,14 @@ angular.module('w11k.select').directive('w11kSelect', [
           controller.$render = render;
           controller.$formatters.push(external2internal);
 
-          controller.$validators.required = validateRequired;
+          if (angular.version.major === 1 && angular.version.minor < 3) {
+            controller.$parsers.push(function (viewValue) {
+              controller.$setValidity('required', validateRequired(viewValue));
+            });
+          } else {
+            controller.$validators.required = validateRequired;
+          }
+
           controller.$parsers.push(internal2external);
 
 
