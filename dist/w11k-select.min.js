@@ -1,5 +1,5 @@
 /**
- * w11k-select - v0.7.3 - 2016-09-21
+ * w11k-select - v0.8.0 - 2016-09-27
  * https://github.com/w11k/w11k-select
  *
  * Copyright (c) 2016 w11k GmbH
