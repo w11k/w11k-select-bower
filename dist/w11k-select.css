@@ -83,7 +83,7 @@
   background-color: gray;
   cursor: pointer;
 }
-.w11k-select .dropdown-menu .content .hidden-checkboxes ul li input[type="checkbox"] {
+.w11k-select .dropdown-menu .content.hidden-checkboxes ul li input[type="checkbox"] {
   display: none;
 }
 
