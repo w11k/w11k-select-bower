@@ -1,8 +1,8 @@
 /**
- * w11k-select - v0.9.0 - 2016-12-12
+ * w11k-select - v0.9.1 - 2017-05-02
  * https://github.com/w11k/w11k-select
  *
- * Copyright (c) 2016 w11k GmbH
+ * Copyright (c) 2017 w11k GmbH
  */
 'use strict';
 
@@ -87,8 +87,8 @@ angular.module('w11k.select').constant('w11kSelectConfig', {
 
 angular.module('w11k.select').factory('w11kSelectHelper', ['$parse', '$document', function ($parse, $document) {
 
-  //                   value                 as    label                for       item              in    collection                |  filter                        track by     tracking
-  var OPTIONS_EXP = /^([a-zA-Z][\w\.]*)(?:\s+as\s+([a-zA-Z][\w\.]*))?\s+for\s+(?:([a-zA-Z][\w]*))\s+in\s+([a-zA-Z][\w\.\(\)]*(?:\s+\|\s[a-zA-Z][\w\:_\{\}']*)*)(?:\s+track\sby\s+([a-zA-Z][\w\.]*))?$/;
+  //                   value                 as    label                for       item              in        collection                |  filter                        track by     tracking
+  var OPTIONS_EXP = /^([a-zA-Z][\w\.]*)(?:\s+as\s+([a-zA-Z][\w\.]*))?\s+for\s+(?:([a-zA-Z][\w]*))\s+in\s+([$_a-zA-Z][\w\.\(\)]*(?:\s+\|\s[a-zA-Z][\w\:_\{\}']*)*)(?:\s+track\sby\s+([a-zA-Z][\w\.]*))?$/;
 
   function extendDeep(dst) {
     angular.forEach(arguments, function (obj) {
@@ -206,7 +206,7 @@ angular.module('w11k.select').directive('w11kSelect', [
       templateUrl: w11kSelectConfig.common.templateUrl,
       scope: {},
       require: 'ngModel',
-      controller: function ($scope, $attrs, $parse) {
+      controller: ['$scope', '$attrs', '$parse', function ($scope, $attrs, $parse) {
         if ($attrs.w11kSelect && $attrs.w11kSelect.length > 0) {
           var exposeExpression = $parse($attrs.w11kSelect);
 
@@ -226,7 +226,7 @@ angular.module('w11k.select').directive('w11kSelect', [
         this.toggle = function () {
           $scope.dropdown.toggle();
         };
-      },
+      }],
       compile: function (tElement, tAttrs) {
         var configExpParsed = $parse(tAttrs.w11kSelectConfig);
         var optionsExpParsed = w11kSelectHelper.parseOptions(tAttrs.w11kSelectOptions);
