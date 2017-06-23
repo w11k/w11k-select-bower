@@ -15,37 +15,37 @@
 
 /* sorry about this - couldn't get it to work otherwise
   especially IE with hover background and indent */
-ul > li > div {
+.w11k-select ul > li > div {
   padding-left: 0; }
 
-ul > li ul > li > div {
+.w11k-select ul > li ul > li > div {
   padding-left: 19px; }
 
-ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li > div {
   padding-left: 38px; }
 
-ul > li ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li ul > li > div {
   padding-left: 57px; }
 
-ul > li ul > li ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li ul > li ul > li > div {
   padding-left: 76px; }
 
-ul > li ul > li ul > li ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li ul > li ul > li ul > li > div {
   padding-left: 95px; }
 
-ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
   padding-left: 114px; }
 
-ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
   padding-left: 133px; }
 
-ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
   padding-left: 152px; }
 
-ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
   padding-left: 171px; }
 
-ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
+.w11k-select ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li ul > li > div {
   padding-left: 190px; }
 
 a.w11k-checkbox {
