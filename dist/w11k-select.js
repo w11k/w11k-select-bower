@@ -1,5 +1,5 @@
 /**
- * @version v0.10.3
+ * @version v0.10.4
  * @link https://github.com/w11k/w11k-select
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -289,6 +289,18 @@ function collectActiveLabels(option, labelArray) {
         labelArray.push(option.label);
     }
     option.children.forEach(function (option) { return collectActiveLabels(option, labelArray); });
+}
+
+function buildInternalOptionsMap(internalOptions, internalOptionsMap) {
+    internalOptions.forEach(function (option) {
+        if (internalOptionsMap[option.trackingId]) {
+            throw new Error('Duplicate hash value for options ' + option.label + ' and ' + internalOptionsMap[option.trackingId].label);
+        }
+        internalOptionsMap[option.trackingId] = option;
+        if (option.children) {
+            buildInternalOptionsMap(option.children, internalOptionsMap);
+        }
+    });
 }
 
 /** @internal */
@@ -591,14 +603,7 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                         if (angular.isArray(externalOptions)) {
                             internalOptions = externalOptions2internalOptions(externalOptions, viewValue, w11kSelectHelper, optionsExpParsed, scope.config);
                             internalOptionsMap = {};
-                            var i = internalOptions.length;
-                            while (i--) {
-                                var option = internalOptions[i];
-                                if (internalOptionsMap[option.trackingId]) {
-                                    throw new Error('Duplicate hash value for options ' + option.label + ' and ' + internalOptionsMap[option.trackingId].label);
-                                }
-                                internalOptionsMap[option.trackingId] = option;
-                            }
+                            buildInternalOptionsMap(internalOptions, internalOptionsMap);
                             filterOptions();
                             if (ngModelAlreadyRead) {
                                 updateNgModel();
