@@ -1,5 +1,5 @@
 /**
- * @version v0.10.4
+ * @version v0.10.5
  * @link https://github.com/w11k/w11k-select
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
