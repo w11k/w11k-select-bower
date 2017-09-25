@@ -1,5 +1,5 @@
 /**
- * @version v0.10.5
+ * @version v0.11.0
  * @link https://github.com/w11k/w11k-select
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -10,7 +10,7 @@
 }(this, (function (exports,angular) { 'use strict';
 
 w11kSelect.$inject = ["w11kSelectConfig", "$parse", "$document", "w11kSelectHelper", "$filter", "$timeout", "$window", "$q"];
-w11kSelectOptionDirektive.$inject = ["w11kSelectConfig"];
+w11kSelectOptionDirective.$inject = ["w11kSelectConfig"];
 w11kSelectInfiniteScroll.$inject = ["$timeout"];
 var ConfigCommon = (function () {
     function ConfigCommon() {
@@ -27,6 +27,8 @@ var ConfigInstance = (function () {
         this.hideCheckboxes = false;
         /** single or multiple select */
         this.multiple = true;
+        /** force ngModel to be an array for single select too */
+        this.forceArrayOutput = false;
         /** disable user interaction */
         this.disabled = false;
         /** all the configuration for the header (visible if dropdown closed) */
@@ -97,43 +99,43 @@ var W11KSelectHelper = (function () {
     W11KSelectHelper.$inject = ["$parse", "$document"];
     function W11KSelectHelper($parse, $document) {
         'ngInject';
-        var _this = this;
         this.$parse = $parse;
         this.$document = $document;
         //               value                 as    label                for       item              in    collection                    |  filter                        track by     tracking
         this.OPTIONS_EXP = /^([a-zA-Z][\w\.]*)(?:\s+as\s+([a-zA-Z][\w\.]*))?\s+for\s+(?:([a-zA-Z][\w]*))\s+in\s+([$_a-zA-Z][\w\.\(\)]*(?:\s+\|\s[a-zA-Z][\w\:_\{\}']*)*)(?:\s+track\sby\s+([a-zA-Z][\w\.]*))?$/;
-        this.extendDeep = function (dst) {
-            var otherArgs = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                otherArgs[_i - 1] = arguments[_i];
-            }
-            angular.forEach(otherArgs, function (obj) {
-                if (obj !== dst) {
-                    angular.forEach(obj, function (value, key) {
-                        if (dst[key] && dst[key].constructor && dst[key].constructor === Object) {
-                            _this.extendDeep(dst[key], value);
-                        }
-                        else {
-                            dst[key] = value;
-                        }
-                    });
-                }
-            });
-            return dst;
-        };
     }
+    W11KSelectHelper.prototype.extendDeep = function (dst) {
+        var _this = this;
+        var otherArgs = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            otherArgs[_i - 1] = arguments[_i];
+        }
+        angular.forEach(otherArgs, function (obj) {
+            if (obj !== dst) {
+                angular.forEach(obj, function (value, key) {
+                    if (dst[key] && dst[key].constructor && dst[key].constructor === Object) {
+                        _this.extendDeep(dst[key], value);
+                    }
+                    else {
+                        dst[key] = value;
+                    }
+                });
+            }
+        });
+        return dst;
+    };
     W11KSelectHelper.prototype.hashCode = function (value) {
-        var string;
+        var valueAsString;
         if (typeof value === 'object') {
-            string = angular.toJson(value);
+            valueAsString = angular.toJson(value);
         }
         else {
-            string = value.toString();
+            valueAsString = value.toString();
         }
         var hash = 0;
-        var length = string.length;
+        var length = valueAsString.length;
         for (var i = 0; i < length; i++) {
-            hash = string.charCodeAt(i) + (hash << 6) + (hash << 16) - hash;
+            hash = valueAsString.charCodeAt(i) + (hash << 6) + (hash << 16) - hash;
         }
         return hash.toString(36);
     };
@@ -343,6 +345,8 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                  * internal model
                  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+                var optionsAlreadyRead;
+                var ngModelAlreadyRead = false;
                 var hasBeenOpened = false;
                 var internalOptions = [];
                 var internalOptionsMap = {};
@@ -380,15 +384,15 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                     }
                 }
                 function updateStaticTexts() {
-                    if (scope.config.filter.select.active && scope.config.filter.select.text) {
+                    if (scope.config.filter.select.active && scope.config.filter.select.text !== null && typeof (scope.config.filter.select.text) !== 'undefined') {
                         var selectFilteredButton = domElement.querySelector('.select-filtered-text');
                         selectFilteredButton.textContent = scope.config.filter.select.text;
                     }
-                    if (scope.config.filter.deselect.active && scope.config.filter.deselect.text) {
+                    if (scope.config.filter.deselect.active && scope.config.filter.deselect.text !== null && typeof (scope.config.filter.deselect.text) !== 'undefined') {
                         var deselectFilteredButton = domElement.querySelector('.deselect-filtered-text');
                         deselectFilteredButton.textContent = scope.config.filter.deselect.text;
                     }
-                    if (scope.config.header.placeholder) {
+                    if (scope.config.header.placeholder !== null && typeof (scope.config.header.placeholder) !== 'undefined') {
                         var headerPlaceholder = domElement.querySelector('.header-placeholder');
                         headerPlaceholder.textContent = scope.config.header.placeholder;
                     }
@@ -405,6 +409,10 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                  * dropdown
                  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+                var domDropDownMenu = domElement.querySelector('.dropdown-menu');
+                var domDropDownContent = domElement.querySelector('.dropdown-menu .content');
+                var domHeightAdjustContainer = w11kSelectHelper.getParent(iElement, '.w11k-select-adjust-height-to');
+                var domHeaderText = domElement.querySelector('.header-text');
                 function onEscPressed(event) {
                     if (event.keyCode === 27) {
                         if (scope.dropdown.close) {
@@ -414,7 +422,7 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                 }
                 function adjustHeight() {
                     if (angular.isDefined(scope.config.style.maxHeight)) {
-                        domDropDownContent.style.maxHeight = scope.style.maxHeight;
+                        domDropDownContent.style.maxHeight = scope.config.style.maxHeight;
                     }
                     else {
                         var maxHeight = calculateDynamicMaxHeight();
@@ -459,10 +467,6 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                     }
                     return maxHeight;
                 }
-                var domDropDownMenu = domElement.querySelector('.dropdown-menu');
-                var domDropDownContent = domElement.querySelector('.dropdown-menu .content');
-                var domHeightAdjustContainer = w11kSelectHelper.getParent(iElement, '.w11k-select-adjust-height-to');
-                var domHeaderText = domElement.querySelector('.header-text');
                 scope.dropdown = {
                     onOpen: function ($event) {
                         if (scope.config.disabled) {
@@ -593,7 +597,6 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                  * options
                  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-                var optionsAlreadyRead;
                 var updateOptions = (function () {
                     var deferred = $q.defer();
                     optionsAlreadyRead = deferred.promise;
@@ -647,7 +650,6 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                     });
                     ngModelSetter(scope.$parent, value);
                 }
-                var ngModelAlreadyRead;
                 function render() {
                     optionsAlreadyRead.then(function () {
                         ngModelAlreadyRead = true;
@@ -682,7 +684,7 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                         return;
                     }
                     var modelValue;
-                    if (scope.config.multiple) {
+                    if (scope.config.multiple || scope.config.forceArrayOutput) {
                         modelValue = viewValue;
                     }
                     else {
@@ -690,12 +692,17 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                     }
                     return modelValue;
                 }
-                function validateRequired(viewValue) {
-                    if (scope.config.multiple === true && scope.config.required === true && viewValue.length === 0) {
-                        return false;
-                    }
-                    if (scope.config.multiple === false && scope.config.required === true && viewValue === undefined) {
-                        return false;
+                function validateRequired(value) {
+                    if (scope.config.required) {
+                        if (scope.config.multiple === true && value.length === 0) {
+                            return false;
+                        }
+                        if (scope.config.multiple === false && scope.config.forceArrayOutput === true && value.length === 0) {
+                            return false;
+                        }
+                        if (scope.config.multiple === false && value === undefined) {
+                            return false;
+                        }
                     }
                     return true;
                 }
@@ -713,13 +720,13 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
         }
     };
 }
-var checkConfig = function (config, setViewValue) {
+function checkConfig(config, setViewValue) {
     /**
      *  Currently there is a bug if multiple = false and required = true.
      *  Then the validator runs only once, before the config is present
      *  and returns a wrong validation state.
      *  might be fixed by calling updateNgModel() here
-     * */
+     */
     // throw error if multiple is false and childrenKey is present
     if (config.children && !config.multiple) {
         throw new Error('Multiple must be enabled when displaying hierarchically structure');
@@ -727,7 +734,7 @@ var checkConfig = function (config, setViewValue) {
     if (config.children) {
         setViewValue();
     }
-};
+}
 
 var Result = (function () {
     function Result(length) {
@@ -738,7 +745,7 @@ var Result = (function () {
     }
     return Result;
 }());
-function w11kSelectOptionDirektive(w11kSelectConfig) {
+function w11kSelectOptionDirective(w11kSelectConfig) {
     'ngInject';
     return {
         restrict: 'A',
@@ -747,10 +754,10 @@ function w11kSelectOptionDirektive(w11kSelectConfig) {
         scope: {
             'options': '=',
             'parent': '=',
-            'select': '&',
+            'select': '&'
         },
         require: 'ngModel',
-        controller: ["$scope", "$attrs", "$parse", function ($scope, $attrs, $parse) {
+        controller: ["$scope", function ($scope) {
             if ($scope.$parent.childsMap) {
                 $scope.$parent.addChild($scope, $scope.parent);
             }
@@ -796,7 +803,7 @@ function w11kSelectOptionDirektive(w11kSelectConfig) {
             $scope.downWardstoggleAll = function (toSetState) {
                 $scope.options = toggleDownWards($scope.options, toSetState, $scope);
             };
-        }],
+        }]
     };
 }
 function toggleDownWards(options, toSetState, $scope) {
@@ -906,13 +913,13 @@ function w11kSelectInfiniteScroll($timeout) {
 function keyListener() {
     return function (scope, elm, attrs) {
         // prevent scroll on space click
-        elm.bind("keydown", function (event) {
+        elm.bind('keydown', function (event) {
             if (event.keyCode === 32) {
                 event.preventDefault();
             }
         });
         // trigger click on spacer || enter
-        elm.bind("keyup", function (event) {
+        elm.bind('keyup', function (event) {
             if (event.keyCode === 32 || event.keyCode === 13) {
                 scope.$apply(attrs.keyListener);
             }
@@ -930,7 +937,7 @@ module$2
     .directive('w11kSelectInfiniteScroll', w11kSelectInfiniteScroll)
     .service('w11kSelectHelper', W11KSelectHelper)
     .directive('w11kSelect', w11kSelect)
-    .directive('w11kSelectOption', w11kSelectOptionDirektive)
+    .directive('w11kSelectOption', w11kSelectOptionDirective)
     .directive('w11kSelectCheckbox', w11kSelectCheckboxDirective)
     .directive('keyListener', keyListener);
 
