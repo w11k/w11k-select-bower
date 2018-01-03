@@ -1,7 +1,6 @@
 {
   "name": "w11k-select",
-  "version": "0.11.0",
-
+  "version": "0.11.2",
   "description": "Distribution Repository of w11k-select",
   "keywords": [ "angular", "angularjs", "directive", "select", "multi-select", "bootstrap", "bower" ],
   "homepage": "https://github.com/w11k/w11k-select",

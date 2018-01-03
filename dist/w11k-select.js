@@ -1,5 +1,5 @@
 /**
- * @version v0.11.0
+ * @version v0.11.2
  * @link https://github.com/w11k/w11k-select
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -208,6 +208,14 @@ function setSelected(options, selected) {
         setSelected(options[i].children || [], selected);
     }
 }
+// Sets all options to selected (deep) where isSearchResultOrParent is true
+function setFilteredSelected(options) {
+    options.forEach(function (option) {
+        option.selected = option.isSearchResultOrParent;
+        option.state = option.selected ? OptionState.selected : OptionState.unselected;
+        setFilteredSelected(option.children || []);
+    });
+}
 
 function externalOption2value(option, optionsExpParsed) {
     var context = {};
@@ -262,6 +270,7 @@ var InternalOption = (function () {
         this.state = state;
         this.children = children;
         this.parent = parent;
+        this.isSearchResultOrParent = true;
     }
     return InternalOption;
 }());
@@ -303,6 +312,25 @@ function buildInternalOptionsMap(internalOptions, internalOptionsMap) {
             buildInternalOptionsMap(option.children, internalOptionsMap);
         }
     });
+}
+
+// Checks whether an array exists and contains items
+// Checks whether an array exists and contains items
+function arrayExistsAndContains(arr) {
+    return !!arr && arr.length > 0;
+}
+
+var filterInternals = function (resourceList, searchStr) {
+    return resourceList.map(function (it) {
+        if (arrayExistsAndContains(it.children)) {
+            it.children = filterInternals(it.children, searchStr);
+        }
+        it.isSearchResultOrParent = it.label.toString().toLowerCase().includes(searchStr) || ContainsResult(it.children);
+        return it;
+    });
+};
+function ContainsResult(resource) {
+    return resource.some(function (resource) { return resource.isSearchResultOrParent || ContainsResult(resource.children); });
 }
 
 /** @internal */
@@ -364,7 +392,7 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                     return configExpParsed(scope.$parent);
                 }, function (newConfig) {
                     if (angular.isArray(newConfig)) {
-                        w11kSelectHelper.extendDeep.apply(null, [scope.config].concat(newConfig));
+                        w11kSelectHelper.extendDeep.apply(w11kSelectHelper, [scope.config].concat(newConfig));
                         applyConfig();
                     }
                     else if (angular.isObject(newConfig)) {
@@ -534,13 +562,12 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                  * filter
                  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-                var filter = $filter('filter');
                 var initialLimitTo = 80;
                 var increaseLimitTo = initialLimitTo * 0.5;
                 function filterOptions() {
                     if (hasBeenOpened) {
                         // false as third parameter: use contains to compare
-                        optionsFiltered = filter(internalOptions, scope.filter.values, false);
+                        optionsFiltered = filterInternals(internalOptions, scope.filter.values.label ? scope.filter.values.label.toLowerCase() : '');
                         scope.options.visible = optionsFiltered.slice(0, initialLimitTo);
                     }
                 }
@@ -570,7 +597,10 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                         $event.preventDefault();
                         $event.stopPropagation();
                     }
-                    if (scope.config.multiple) {
+                    if (scope.config.children) {
+                        setFilteredSelected(internalOptions);
+                    }
+                    else if (scope.config.multiple) {
                         setSelected(optionsFiltered, true);
                     }
                     else if (optionsFiltered.length === 1) {
@@ -802,6 +832,9 @@ function w11kSelectOptionDirective(w11kSelectConfig) {
             };
             $scope.downWardstoggleAll = function (toSetState) {
                 $scope.options = toggleDownWards($scope.options, toSetState, $scope);
+            };
+            $scope.filterSearchResultsInView = function (item) {
+                return item.isSearchResultOrParent;
             };
         }]
     };

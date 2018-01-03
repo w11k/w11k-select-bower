@@ -1,6 +1,6 @@
 {
   "name": "w11k-select",
-  "version": "0.11.0",
+  "version": "0.11.2",
   "main": [
     "dist/w11k-select.js",
     "dist/w11k-select.css"
