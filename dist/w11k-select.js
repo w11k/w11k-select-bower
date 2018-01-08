@@ -1,5 +1,5 @@
 /**
- * @version v0.11.2
+ * @version v0.11.3
  * @link https://github.com/w11k/w11k-select
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -83,6 +83,8 @@ var ConfigInstance = (function () {
         };
         /** when set to true, the clear-button is always visible. */
         this.showClearAlways = false;
+        /** when set to true, we force the view value and external value to be null rather than undefined when 0 options are selected */
+        this.useNullableModel = false;
     }
     return ConfigInstance;
 }());
@@ -670,7 +672,11 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
                 function setViewValue() {
                     var selectedValues = internalOptions2externalModel(internalOptions, optionsExpParsed, w11kSelectConfig);
-                    controller.$setViewValue(selectedValues);
+                    var newViewValue = selectedValues;
+                    if (scope.config.useNullableModel && selectedValues.length === 0) {
+                        newViewValue = null;
+                    }
+                    controller.$setViewValue(newViewValue);
                     updateHeader();
                 }
                 function updateNgModel() {
@@ -678,6 +684,9 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                     angular.forEach(controller.$parsers, function (parser) {
                         value = parser(value);
                     });
+                    if (scope.config.useNullableModel && (typeof value === 'undefined' || (angular.isArray(value) && value.length === 0))) {
+                        value = null;
+                    }
                     ngModelSetter(scope.$parent, value);
                 }
                 function render() {
@@ -701,7 +710,7 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                     if (angular.isArray(modelValue)) {
                         viewValue = modelValue;
                     }
-                    else if (angular.isDefined(modelValue)) {
+                    else if (angular.isDefined(modelValue) && !(scope.config.useNullableModel && modelValue === null)) {
                         viewValue = [modelValue];
                     }
                     else {
@@ -712,6 +721,9 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                 function internal2external(viewValue) {
                     if (angular.isUndefined(viewValue)) {
                         return;
+                    }
+                    else if (scope.config.useNullableModel && viewValue === null) {
+                        return null;
                     }
                     var modelValue;
                     if (scope.config.multiple || scope.config.forceArrayOutput) {
@@ -724,10 +736,10 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                 }
                 function validateRequired(value) {
                     if (scope.config.required) {
-                        if (scope.config.multiple === true && value.length === 0) {
+                        if (scope.config.multiple === true && (angular.isArray(value) && value.length === 0)) {
                             return false;
                         }
-                        if (scope.config.multiple === false && scope.config.forceArrayOutput === true && value.length === 0) {
+                        if (scope.config.multiple === false && scope.config.forceArrayOutput === true && (angular.isArray(value) && value.length === 0)) {
                             return false;
                         }
                         if (scope.config.multiple === false && value === undefined) {
@@ -738,7 +750,7 @@ function w11kSelect(w11kSelectConfig, $parse, $document, w11kSelectHelper, $filt
                 }
                 function isEmpty() {
                     var value = controller.$viewValue;
-                    return !(angular.isArray(value) && value.length > 0);
+                    return !(angular.isArray(value) && value.length > 0) || (scope.config.useNullableModel && value === null);
                 }
                 scope.isEmpty = isEmpty;
                 controller.$isEmpty = isEmpty;
